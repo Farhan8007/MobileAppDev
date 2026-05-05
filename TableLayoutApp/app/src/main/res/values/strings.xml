@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TableLayoutApp</string>
+    <string name="rating">Rating</string>
+    <string name="enter_last_name">Enter Last Name</string>
+</resources>

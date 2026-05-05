@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- TO -->
+    <EditText
+        android:id="@+id/etTo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="To"
+        android:inputType="textEmailAddress"
+        android:textSize="16sp" />
+
+    <!-- SUBJECT -->
+    <EditText
+        android:id="@+id/etSubject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Subject"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp" />
+
+    <!-- MESSAGE -->
+    <EditText
+        android:id="@+id/etMessage"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:hint="Message"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
+
+    <!-- SEND BUTTON -->
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SEND"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>

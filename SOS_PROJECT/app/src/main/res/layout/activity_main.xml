@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA"
+    tools:context=".MainActivity">
+
+    <!-- Header Gradient Decor -->
+    <View
+        android:id="@+id/headerDecor"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@drawable/header_gradient"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:fontFamily="sans-serif-black"
+        android:text="SafePulse"
+        android:textColor="#FFFFFF"
+        android:textSize="42sp"
+        android:letterSpacing="0.05"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Safety, One Tap Away"
+        android:textColor="#E0E0E0"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-medium"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Main Safe Button with Outer Ring -->
+    <FrameLayout
+        android:id="@+id/safeButtonContainer"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnSos"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerDecor"
+        app:layout_constraintVertical_bias="0.4">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/circle_ring" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSafe"
+            android:layout_width="230dp"
+            android:layout_height="230dp"
+            android:layout_gravity="center"
+            android:text="I AM SAFE"
+            android:textSize="26sp"
+            android:fontFamily="sans-serif-black"
+            android:textColor="#FFFFFF"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="115dp"
+            app:backgroundTint="#2ECC71"
+            app:elevation="12dp"
+            app:rippleColor="#80FFFFFF" />
+    </FrameLayout>
+
+    <!-- SOS Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSos"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="120dp"
+        android:text="SOS — NEED HELP"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-black"
+        android:textColor="#FFFFFF"
+        app:cornerRadius="36dp"
+        app:backgroundTint="#E74C3C"
+        app:elevation="6dp"
+        app:icon="@android:drawable/ic_dialog_alert"
+        app:iconGravity="textStart"
+        app:iconPadding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Bottom Actions Container -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabContacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Contacts"
+            android:textColor="#FFFFFF"
+            app:backgroundTint="#34495E"
+            app:icon="@android:drawable/ic_menu_my_calendar"
+            app:iconTint="#FFFFFF" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="History"
+            android:textColor="#FFFFFF"
+            app:backgroundTint="#34495E"
+            app:icon="@android:drawable/ic_menu_recent_history"
+            app:iconTint="#FFFFFF" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
