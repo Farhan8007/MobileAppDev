@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GymFees" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorSecondary">@color/green_secondary</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Theme.GymFees.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/my_gym_logo</item>
+        <item name="windowSplashScreenBackground">@color/blue_primary</item>
+        <item name="postSplashScreenTheme">@style/Theme.GymFees</item>
+    </style>
+</resources>

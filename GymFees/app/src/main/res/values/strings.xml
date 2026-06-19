@@ -1,0 +1,55 @@
+<resources>
+    <string name="app_name">GYM Fees</string>
+    <string name="tagline">Track Members, Fees &amp; Payments Easily</string>
+
+    <!-- Fragments -->
+    <string name="home_title">GYM Fees</string>
+    <string name="add_customer">Add Customer</string>
+    <string name="edit_customer">Edit Customer</string>
+    <string name="customer_details">Customer Details</string>
+    <string name="settings">Settings</string>
+
+    <!-- Input Labels -->
+    <string name="customer_name">Customer Name</string>
+    <string name="mobile_number">Mobile Number</string>
+    <string name="joining_date">Joining Date</string>
+    <string name="monthly_fee">Monthly Fee Amount</string>
+    <string name="notes_optional">Notes (Optional)</string>
+    <string name="save_customer">Save Customer</string>
+    <string name="update_customer">Update Customer</string>
+
+    <!-- Placeholders -->
+    <string name="search_hint">Search by Name or Mobile</string>
+    <string name="total_customers">Total: %1$d</string>
+    <string name="paid_customers">Paid: %1$d</string>
+    <string name="due_soon">Due: %1$d</string>
+    <string name="overdue">Overdue: %1$d</string>
+    <string name="monthly_collection">Collection: ₹%1$.2f</string>
+    <string name="no_customers">No customers found</string>
+
+    <!-- Status Labels -->
+    <string name="status_paid">PAID</string>
+    <string name="status_due_soon">DUE SOON</string>
+    <string name="status_overdue">OVERDUE</string>
+
+    <!-- Actions -->
+    <string name="action_paid">Paid</string>
+    <string name="action_sms">SMS</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+
+    <!-- Messages -->
+    <string name="delete_confirmation_title">Delete Customer</string>
+    <string name="delete_confirmation_msg">Are you sure you want to permanently delete this customer?</string>
+    <string name="customer_deleted">Customer deleted successfully</string>
+    <string name="customer_updated">Customer updated successfully</string>
+    <string name="customer_added">Customer added successfully</string>
+    <string name="fill_required">Please fill all required fields</string>
+
+    <!-- SMS Template -->
+    <string name="sms_template_title">SMS Template</string>
+    <string name="sms_template_hint">Available placeholders: {NAME}, {FEE}, {DUEDATE}</string>
+    <string name="save_template">Save Template</string>
+    <string name="template_saved">Template saved successfully</string>
+    <string name="default_sms_template">Hello {NAME},\n\nYour gym fee of ₹{FEE} is due on {DUEDATE}.\n\nPlease pay before the due date.\n\nThank you.</string>
+</resources>

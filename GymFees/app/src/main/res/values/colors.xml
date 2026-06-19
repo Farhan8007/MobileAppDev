@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="blue_primary">#1976D2</color>
+    <color name="green_secondary">#388E3C</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="red_overdue">#D32F2F</color>
+    <color name="yellow_due">#FBC02D</color>
+    <color name="green_paid">#388E3C</color>
+</resources>
