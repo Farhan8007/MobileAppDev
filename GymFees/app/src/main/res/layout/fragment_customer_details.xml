@@ -91,6 +91,14 @@
             android:orientation="vertical"
             android:padding="20dp">
 
+            <Button
+                android:id="@+id/btnDetailTogglePayment"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                tools:text="Mark Paid" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

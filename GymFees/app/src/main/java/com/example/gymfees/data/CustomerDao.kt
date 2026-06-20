@@ -11,6 +11,9 @@ interface CustomerDao {
     @Query("SELECT * FROM customers WHERE id = :id")
     suspend fun getCustomerById(id: Long): Customer?
 
+    @Query("SELECT * FROM customers WHERE id = :id")
+    fun getCustomerByIdLiveData(id: Long): LiveData<Customer?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCustomer(customer: Customer): Long
 
@@ -26,23 +29,19 @@ interface CustomerDao {
     @Query("SELECT COUNT(*) FROM customers")
     fun getCustomerCount(): LiveData<Int>
 
-    // Dynamic counts based on date
-    @Query("SELECT COUNT(*) FROM customers WHERE nextDueDate > :today + 259200000") // More than 3 days away
-    fun getPaidCount(today: Long): LiveData<Int>
+    @Query("SELECT COUNT(*) FROM customers WHERE isCurrentMonthFeePaid = 1")
+    fun getPaidCustomerCount(): LiveData<Int>
 
-    @Query("SELECT COUNT(*) FROM customers WHERE nextDueDate >= :today AND nextDueDate <= :today + 259200000") // within 3 days
+    @Query("SELECT COUNT(*) FROM customers WHERE isCurrentMonthFeePaid = 0 AND nextDueDate >= :today AND nextDueDate <= :today + 259200000") // within 3 days
     fun getDueSoonCount(today: Long): LiveData<Int>
 
-    @Query("SELECT COUNT(*) FROM customers WHERE nextDueDate < :today")
+    @Query("SELECT COUNT(*) FROM customers WHERE isCurrentMonthFeePaid = 0 AND nextDueDate < :today")
     fun getOverdueCount(today: Long): LiveData<Int>
 
-    @Query("SELECT SUM(monthlyFee) FROM customers")
-    fun getTotalMonthlyCollection(): LiveData<Double>
-
     // For WorkManager
-    @Query("SELECT COUNT(*) FROM customers WHERE nextDueDate >= :startOfDay AND nextDueDate <= :endOfDay")
+    @Query("SELECT COUNT(*) FROM customers WHERE isCurrentMonthFeePaid = 0 AND nextDueDate >= :startOfDay AND nextDueDate <= :endOfDay")
     fun getDueTodayCountSync(startOfDay: Long, endOfDay: Long): Int
 
-    @Query("SELECT COUNT(*) FROM customers WHERE nextDueDate < :today")
+    @Query("SELECT COUNT(*) FROM customers WHERE isCurrentMonthFeePaid = 0 AND nextDueDate < :today")
     fun getOverdueCountSync(today: Long): Int
 }

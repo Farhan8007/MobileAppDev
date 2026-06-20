@@ -25,26 +25,58 @@
     <string name="due_soon">Due: %1$d</string>
     <string name="overdue">Overdue: %1$d</string>
     <string name="monthly_collection">Collection: ₹%1$.2f</string>
+    <string name="total_collection_label">₹%1$.2f</string>
+    <string name="month_collection_label">₹%1$.2f</string>
+    <string name="label_this_month">This Month</string>
+    <string name="label_total_ever">Total Ever</string>
     <string name="no_customers">No customers found</string>
 
     <!-- Status Labels -->
+    <string name="status_all">All</string>
     <string name="status_paid">PAID</string>
     <string name="status_due_soon">DUE SOON</string>
     <string name="status_overdue">OVERDUE</string>
+    <string name="status_pending">PENDING</string>
 
     <!-- Actions -->
-    <string name="action_paid">Paid</string>
+    <string name="action_mark_paid">Mark Paid</string>
+    <string name="action_mark_unpaid">Mark Unpaid</string>
     <string name="action_sms">SMS</string>
     <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_undo">UNDO</string>
+
+    <!-- Details View -->
+    <string name="detail_fee">Monthly Fee: ₹%1$.2f</string>
+    <string name="detail_joined">Joined: %1$s</string>
+    <string name="detail_notes">Notes: %1$s</string>
+    <string name="item_fee_label">Fee: ₹%1$.2f</string>
+    <string name="item_due_date_label">(Due: %1$s)</string>
+    <string name="payment_history_title">Payment History</string>
+    <string name="no_payments_recorded">No payments recorded yet</string>
+    <string name="paid_on_label">Paid on %1$s</string>
 
     <!-- Messages -->
     <string name="delete_confirmation_title">Delete Customer</string>
-    <string name="delete_confirmation_msg">Are you sure you want to permanently delete this customer?</string>
-    <string name="customer_deleted">Customer deleted successfully</string>
+    <string name="delete_confirmation_msg_customer">Are you sure you want to permanently delete %1$s? This action cannot be undone.</string>
+    <string name="customer_deleted">%1$s deleted successfully</string>
     <string name="customer_updated">Customer updated successfully</string>
     <string name="customer_added">Customer added successfully</string>
     <string name="fill_required">Please fill all required fields</string>
+
+    <string name="confirm_payment_title">Confirm Payment</string>
+    <string name="confirm_mark_paid_msg">Mark fee of ₹%1$.2f for %2$s as PAID?</string>
+    <string name="confirm_revert_title">Confirm Revert Payment</string>
+    <string name="confirm_mark_unpaid_msg">Revert payment of ₹%1$.2f for %2$s to UNPAID?</string>
+
+    <string name="fee_marked_paid">Fee marked as Paid.</string>
+    <string name="fee_marked_unpaid">Fee marked as Unpaid.</string>
+    <string name="revert_to_unpaid_success">Payment successfully reverted to UNPAID.</string>
+    <string name="revert_to_paid_success">Payment successfully reverted to PAID.</string>
+    <string name="payment_undone">Payment undone.</string>
+    <string name="reversal_undone">Reversal undone.</string>
 
     <!-- SMS Template -->
     <string name="sms_template_title">SMS Template</string>

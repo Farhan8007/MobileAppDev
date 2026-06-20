@@ -21,5 +21,8 @@ interface PaymentDao {
     suspend fun deletePaymentsByCustomerId(customerId: Long)
 
     @Query("SELECT SUM(amountPaid) FROM payments WHERE paymentDate >= :startOfMonth")
-    fun getTotalCollectionForMonth(startOfMonth: Long): LiveData<Double>
+    fun getTotalCollectionForMonth(startOfMonth: Long): LiveData<Double?>
+
+    @Query("SELECT SUM(amountPaid) FROM payments")
+    fun getTotalCollection(): LiveData<Double?>
 }

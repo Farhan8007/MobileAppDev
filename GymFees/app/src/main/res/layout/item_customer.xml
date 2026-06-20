@@ -46,7 +46,7 @@
             android:layout_marginTop="4dp"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvCustomerName"
+            app:layout_constraintTop_toBottomOf="@+id/tvCustomerName"
             tools:text="+91 9876543210" />
 
         <TextView
@@ -57,33 +57,33 @@
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvMobile"
+            app:layout_constraintTop_toBottomOf="@+id/tvMobile"
             tools:text="Fee: ₹1000" />
 
         <TextView
             android:id="@+id/tvDueDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="8dp"
             android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvFee"
-            tools:text="Next Due: 15 July 2026" />
+            app:layout_constraintBottom_toBottomOf="@+id/tvFee"
+            app:layout_constraintStart_toEndOf="@+id/tvFee"
+            tools:text="(Due: 15 July)" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/tvDueDate">
+            app:layout_constraintTop_toBottomOf="@+id/tvDueDate">
 
             <Button
-                android:id="@+id/btnPaid"
+                android:id="@+id/btnTogglePaymentStatus"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Paid" />
+                tools:text="Mark Paid" />
 
             <Space
                 android:layout_width="8dp"

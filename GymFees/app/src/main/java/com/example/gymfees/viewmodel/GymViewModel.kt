@@ -8,6 +8,7 @@ import com.example.gymfees.data.Payment
 import com.example.gymfees.repository.GymRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class GymViewModel(application: Application) : AndroidViewModel(application) {
@@ -15,28 +16,39 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: GymRepository
     
     private val _searchQuery = MutableLiveData("")
-    private val _filterStatus = MutableLiveData("ALL") // ALL, PAID, DUE_SOON, OVERDUE
+    private val _filterStatus = MutableLiveData("ALL") // ALL, PAID, PENDING, DUE_SOON, OVERDUE
 
     val filteredCustomers: MediatorLiveData<List<Customer>> = MediatorLiveData()
     val customerCount: LiveData<Int>
     val paidCount: LiveData<Int>
     val dueSoonCount: LiveData<Int>
     val overdueCount: LiveData<Int>
-    val totalCollection: LiveData<Double>
+    val totalCollection: LiveData<Double?>
+    val monthCollection: LiveData<Double?>
 
     // For Snackbar messages
-    private val _snackbarMessage = MutableLiveData<String>()
-    val snackbarMessage: LiveData<String> get() = _snackbarMessage
+    private val _snackbarMessage = MutableLiveData<String?>()
+    val snackbarMessage: LiveData<String?> get() = _snackbarMessage
 
-    private val _showUndoAction = MutableLiveData<Pair<Customer, Payment?>>(null)
-    val showUndoAction: LiveData<Pair<Customer, Payment?>> get() = _showUndoAction
+    // For undo functionality
+    private val _lastAction = MutableLiveData<LastAction?>()
+    val lastAction: LiveData<LastAction?> get() = _lastAction
 
+    sealed class LastAction {
+        data class MarkPaid(val customerBeforeAction: Customer, val newPayment: Payment) : LastAction()
+        data class MarkUnpaid(val customerBeforeAction: Customer, val deletedPayment: Payment) : LastAction()
+    }
 
     init {
         val database = GymDatabase.getDatabase(application)
-        repository = GymRepository(database.customerDao(), database.paymentDao())
+        repository = GymRepository(database)
         
-        val today = Calendar.getInstance().timeInMillis
+        val today = Calendar.getInstance().apply { 
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0) 
+        }.timeInMillis
         
         // Start of current month for collection calculation
         val calendar = Calendar.getInstance()
@@ -44,13 +56,15 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
         val startOfMonth = calendar.timeInMillis
 
         customerCount = repository.customerCount
-        paidCount = database.customerDao().getPaidCount(today)
-        dueSoonCount = database.customerDao().getDueSoonCount(today)
-        overdueCount = database.customerDao().getOverdueCount(today)
-        totalCollection = repository.getTotalCollectionForMonth(startOfMonth)
+        paidCount = repository.paidCustomerCount
+        dueSoonCount = repository.getDueSoonCount(today)
+        overdueCount = repository.getOverdueCount(today)
+        monthCollection = repository.getTotalCollectionForMonth(startOfMonth)
+        totalCollection = repository.getTotalCollection()
 
         filteredCustomers.addSource(repository.allCustomers) { customers ->
             combine(customers, _searchQuery.value ?: "", _filterStatus.value ?: "ALL")
@@ -75,19 +89,33 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         _filterStatus.value = status
     }
 
-    private fun filterAndSearch(customers: List<Customer>, query: String, status: String): List<Customer> {
-        val today = Calendar.getInstance().timeInMillis
+    private fun calculateOverallStatus(nextDueDate: Long, today: Long): String {
         val threeDaysMillis = 3 * 24 * 60 * 60 * 1000L
-        
+        return when {
+            nextDueDate < today -> "OVERDUE"
+            nextDueDate <= today + threeDaysMillis -> "DUE_SOON"
+            else -> "PENDING"
+        }
+    }
+
+    private fun filterAndSearch(customers: List<Customer>, query: String, status: String): List<Customer> {
+        val today = Calendar.getInstance().apply { 
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0) 
+        }.timeInMillis
+
         return customers.filter { customer ->
             val matchesSearch = customer.name.contains(query, ignoreCase = true) || 
                                customer.mobileNumber.contains(query)
             
             val matchesFilter = when (status) {
                 "ALL" -> true
-                "PAID" -> customer.nextDueDate > today + threeDaysMillis
-                "DUE_SOON" -> customer.nextDueDate >= today && customer.nextDueDate <= today + threeDaysMillis
-                "OVERDUE" -> customer.nextDueDate < today
+                "PAID" -> customer.isCurrentMonthFeePaid
+                "PENDING" -> !customer.isCurrentMonthFeePaid && calculateOverallStatus(customer.nextDueDate, today) == "PENDING"
+                "DUE_SOON" -> !customer.isCurrentMonthFeePaid && calculateOverallStatus(customer.nextDueDate, today) == "DUE_SOON"
+                "OVERDUE" -> !customer.isCurrentMonthFeePaid && calculateOverallStatus(customer.nextDueDate, today) == "OVERDUE"
                 else -> true
             }
             matchesSearch && matchesFilter
@@ -107,9 +135,18 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             monthlyFee = fee,
             nextDueDate = nextDueDate,
             notes = notes,
-            status = "PENDING" // Default to PENDING for new customers
+            isCurrentMonthFeePaid = false,
+            overallStatus = "PENDING"
         )
         repository.insertCustomer(customer)
+    }
+
+    suspend fun getCustomerById(id: Long): Customer? = withContext(Dispatchers.IO) {
+        repository.getCustomerById(id)
+    }
+
+    fun getCustomerByIdLiveData(id: Long): LiveData<Customer?> {
+        return repository.getCustomerByIdLiveData(id)
     }
 
     fun updateCustomer(customer: Customer) = viewModelScope.launch(Dispatchers.IO) {
@@ -117,16 +154,14 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteCustomer(customer: Customer) = viewModelScope.launch(Dispatchers.IO) {
-        // Also delete associated payments
         repository.deletePaymentsByCustomerId(customer.id)
         repository.deleteCustomer(customer)
     }
 
-    fun markAsPaid(customer: Customer) = viewModelScope.launch(Dispatchers.IO) {
-        if (customer.status == "PAID") {
-            _snackbarMessage.postValue("Payment already marked as paid.")
-            return@launch
-        }
+    fun markCustomerPaid(customer: Customer) = viewModelScope.launch(Dispatchers.IO) {
+        if (customer.isCurrentMonthFeePaid) return@launch
+
+        val customerBeforeAction = customer.copy()
 
         val paymentDate = System.currentTimeMillis()
         val payment = Payment(
@@ -134,10 +169,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             customerName = customer.name,
             amountPaid = customer.monthlyFee,
             paymentDate = paymentDate,
-            dueDate = customer.nextDueDate // Store the due date at the time of payment
+            dueDate = customer.nextDueDate
         )
-
-        repository.insertPayment(payment)
 
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = customer.nextDueDate
@@ -146,49 +179,70 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
         val updatedCustomer = customer.copy(
             nextDueDate = newNextDueDate,
-            status = "PAID"
+            isCurrentMonthFeePaid = true,
+            overallStatus = "PAID"
         )
-        repository.updateCustomer(updatedCustomer)
-
-        _snackbarMessage.postValue("Payment marked as PAID.")
-        _showUndoAction.postValue(Pair(updatedCustomer, payment)) // For undo functionality
+        
+        repository.markPaidTransaction(customer, payment, updatedCustomer)
+        _lastAction.postValue(LastAction.MarkPaid(customerBeforeAction, payment))
     }
 
-    fun markAsUnpaid(customer: Customer, paymentToRevert: Payment?) = viewModelScope.launch(Dispatchers.IO) {
-        // If paymentToRevert is null, fetch it first
-        val payment = paymentToRevert ?: repository.getLatestPaymentForCustomer(customer.id)
+    fun markCustomerUnpaid(customer: Customer) = viewModelScope.launch(Dispatchers.IO) {
+        if (!customer.isCurrentMonthFeePaid) return@launch
+        
+        val customerBeforeAction = customer.copy()
+        val latestPayment = repository.getLatestPaymentForCustomer(customer.id)
 
-        if (customer.status != "PAID" || payment == null) {
-            _snackbarMessage.postValue("Cannot revert payment. Customer status is not PAID or no payment found.")
+        if (latestPayment == null) {
+            _snackbarMessage.postValue("No payment record found to revert.")
             return@launch
         }
 
-        // Restore the previous due date from the payment record
-        val previousNextDueDate = payment.dueDate
-
-        repository.deletePayment(payment) // Delete the specific payment record
-
+        val previousNextDueDate = latestPayment.dueDate
         val updatedCustomer = customer.copy(
             nextDueDate = previousNextDueDate,
-            status = "PENDING" // Change status back to PENDING
+            isCurrentMonthFeePaid = false,
+            overallStatus = calculateOverallStatus(previousNextDueDate, System.currentTimeMillis())
         )
-        repository.updateCustomer(updatedCustomer)
+        
+        repository.markUnpaidTransaction(latestPayment, updatedCustomer)
+        _lastAction.postValue(LastAction.MarkUnpaid(customerBeforeAction, latestPayment))
+    }
 
-        _snackbarMessage.postValue("Payment has been reversed.")
-        _showUndoAction.postValue(Pair(updatedCustomer, null)) // No undo for reversal
+    fun undoLastAction() = viewModelScope.launch(Dispatchers.IO) {
+        val actionToUndo = _lastAction.value
+        _lastAction.postValue(null)
+
+        when (actionToUndo) {
+            is LastAction.MarkPaid -> {
+                repository.undoActionTransaction(
+                    customerToRevert = actionToUndo.customerBeforeAction,
+                    paymentToDelete = actionToUndo.newPayment,
+                    paymentToRestore = null
+                )
+                _snackbarMessage.postValue("Payment undone.")
+            }
+            is LastAction.MarkUnpaid -> {
+                repository.undoActionTransaction(
+                    customerToRevert = actionToUndo.customerBeforeAction,
+                    paymentToDelete = null,
+                    paymentToRestore = actionToUndo.deletedPayment
+                )
+                _snackbarMessage.postValue("Reversal undone.")
+            }
+            null -> {}
+        }
     }
 
     fun getPaymentsForCustomer(customerId: Long): LiveData<List<Payment>> {
         return repository.getPaymentsForCustomer(customerId)
     }
 
-    // Method to clear the Snackbar message
     fun snackbarMessageShown() {
         _snackbarMessage.value = null
     }
 
-    // Method to clear the undo action
-    fun undoActionShown() {
-        _showUndoAction.value = null
+    fun clearLastAction() {
+        _lastAction.value = null
     }
 }

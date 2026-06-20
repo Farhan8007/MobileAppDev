@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.gymfees.R
 import com.example.gymfees.data.Payment
 import com.example.gymfees.databinding.ItemPaymentBinding
 import java.text.SimpleDateFormat
@@ -23,12 +24,13 @@ class PaymentAdapter : ListAdapter<Payment, PaymentAdapter.PaymentViewHolder>(Pa
 
     class PaymentViewHolder(private val binding: ItemPaymentBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(payment: Payment) {
+            val context = binding.root.context
             val sdf = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
             val dateSdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
             
             binding.tvPaymentDate.text = sdf.format(Date(payment.dueDate))
-            binding.tvPaymentStatus.text = "Paid on ${dateSdf.format(Date(payment.paymentDate))}"
-            binding.tvPaymentAmount.text = "₹${payment.amountPaid}"
+            binding.tvPaymentStatus.text = context.getString(R.string.paid_on_label, dateSdf.format(Date(payment.paymentDate)))
+            binding.tvPaymentAmount.text = context.getString(R.string.item_fee_label, payment.amountPaid)
         }
     }
 

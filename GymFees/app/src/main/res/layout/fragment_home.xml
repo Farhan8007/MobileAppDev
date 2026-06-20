@@ -88,7 +88,7 @@
                             android:layout_columnWeight="1"
                             android:layout_marginBottom="8dp"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="@color/green_paid"
+                            android:textColor="@android:color/holo_green_dark"
                             tools:text="Paid: 40" />
 
                         <TextView
@@ -97,7 +97,7 @@
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="@color/yellow_due"
+                            android:textColor="@android:color/holo_orange_dark"
                             tools:text="Due Soon: 7" />
 
                         <TextView
@@ -106,7 +106,7 @@
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="@color/red_overdue"
+                            android:textColor="@android:color/holo_red_dark"
                             tools:text="Overdue: 3" />
                     </GridLayout>
 
@@ -116,15 +116,60 @@
                         android:layout_marginVertical="12dp"
                         android:background="?attr/colorOutlineVariant" />
 
-                    <TextView
-                        android:id="@+id/tvTotalCollection"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textAppearance="?attr/textAppearanceHeadlineMedium"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        tools:text="Collection: ₹40000" />
+                        android:orientation="horizontal"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvMonthCollection"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?attr/textAppearanceTitleMedium"
+                                android:textColor="?attr/colorPrimary"
+                                android:textStyle="bold"
+                                tools:text="₹10000" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_this_month"
+                                android:textAppearance="?attr/textAppearanceLabelSmall" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="?attr/colorOutlineVariant"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvTotalCollection"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?attr/textAppearanceTitleMedium"
+                                android:textColor="?attr/colorPrimary"
+                                android:textStyle="bold"
+                                tools:text="₹50000" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_total_ever"
+                                android:textAppearance="?attr/textAppearanceLabelSmall" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -164,28 +209,35 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="All Customers" />
+                        android:text="@string/status_all" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipPaid"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Paid" />
+                        android:text="@string/status_paid" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPending"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/status_pending" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipDue"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Due Soon" />
+                        android:text="@string/status_due_soon" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipOverdue"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Overdue" />
+                        android:text="@string/status_overdue" />
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
         </LinearLayout>

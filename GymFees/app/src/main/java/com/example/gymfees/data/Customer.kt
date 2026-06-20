@@ -13,5 +13,6 @@ data class Customer(
     val monthlyFee: Double,
     val nextDueDate: Long,
     val notes: String? = null,
-    val status: String = "PAID" // PAID, DUE_SOON, OVERDUE
+    val isCurrentMonthFeePaid: Boolean = false, // Added for explicit paid/unpaid status
+    val overallStatus: String = "PENDING" // PENDING, PAID, DUE_SOON, OVERDUE - This combines payment status and due date status
 )

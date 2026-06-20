@@ -27,7 +27,7 @@ class AddEditCustomerFragment : Fragment() {
     private val viewModel: GymViewModel by viewModels()
     private val args: AddEditCustomerFragmentArgs by navArgs()
 
-    private var selectedDate: Long = System.currentTimeMillis()
+    private var selectedJoiningDate: Long = System.currentTimeMillis()
     private var existingCustomer: Customer? = null
 
     override fun onCreateView(
@@ -59,15 +59,14 @@ class AddEditCustomerFragment : Fragment() {
 
     private fun loadCustomerData(id: Long) {
         lifecycleScope.launch {
-            val database = GymDatabase.getDatabase(requireContext())
-            val customer = database.customerDao().getCustomerById(id)
+            val customer = viewModel.getCustomerById(id)
             customer?.let {
                 existingCustomer = it
                 binding.etName.setText(it.name)
                 binding.etMobile.setText(it.mobileNumber)
                 binding.etFee.setText(it.monthlyFee.toString())
                 binding.etNotes.setText(it.notes)
-                selectedDate = it.joiningDate
+                selectedJoiningDate = it.joiningDate
                 updateDateLabel()
             }
         }
@@ -75,12 +74,12 @@ class AddEditCustomerFragment : Fragment() {
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
-        calendar.timeInMillis = selectedDate
+        calendar.timeInMillis = selectedJoiningDate
         DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
-                selectedDate = calendar.timeInMillis
+                selectedJoiningDate = calendar.timeInMillis
                 updateDateLabel()
             },
             calendar.get(Calendar.YEAR),
@@ -91,7 +90,7 @@ class AddEditCustomerFragment : Fragment() {
 
     private fun updateDateLabel() {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        binding.etJoiningDate.setText(sdf.format(Date(selectedDate)))
+        binding.etJoiningDate.setText(sdf.format(Date(selectedJoiningDate)))
     }
 
     private fun saveCustomer() {
@@ -108,23 +107,20 @@ class AddEditCustomerFragment : Fragment() {
         val fee = feeStr.toDoubleOrNull() ?: 0.0
 
         if (existingCustomer != null) {
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = selectedDate
-            calendar.add(Calendar.MONTH, 1)
-            val nextDueDate = calendar.timeInMillis
-
+            // Update existing customer
             val updatedCustomer = existingCustomer!!.copy(
                 name = name,
                 mobileNumber = mobile,
-                joiningDate = selectedDate,
+                joiningDate = selectedJoiningDate,
                 monthlyFee = fee,
-                nextDueDate = nextDueDate,
                 notes = notes
+                // Note: we preserve isCurrentMonthFeePaid and nextDueDate here
             )
             viewModel.updateCustomer(updatedCustomer)
             Toast.makeText(requireContext(), R.string.customer_updated, Toast.LENGTH_SHORT).show()
         } else {
-            viewModel.insertCustomer(name, mobile, selectedDate, fee, notes)
+            // Insert new customer
+            viewModel.insertCustomer(name, mobile, selectedJoiningDate, fee, notes)
             Toast.makeText(requireContext(), R.string.customer_added, Toast.LENGTH_SHORT).show()
         }
         findNavController().navigateUp()

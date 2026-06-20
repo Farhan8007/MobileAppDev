@@ -6,13 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.gymfees.R
 import com.example.gymfees.data.Customer
 import com.example.gymfees.databinding.ItemCustomerBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
 class CustomerAdapter(
-    private val onPaidClick: (Customer) -> Unit,
+    private val onTogglePaymentStatusClick: (Customer) -> Unit,
     private val onSMSClick: (Customer) -> Unit,
     private val onEditClick: (Customer) -> Unit,
     private val onDeleteClick: (Customer) -> Unit,
@@ -30,26 +31,35 @@ class CustomerAdapter(
 
     inner class CustomerViewHolder(private val binding: ItemCustomerBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(customer: Customer) {
+            val context = binding.root.context
             binding.tvCustomerName.text = customer.name
             binding.tvMobile.text = customer.mobileNumber
             binding.tvFee.text = "Fee: ₹${customer.monthlyFee}"
             
-            val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-            binding.tvDueDate.text = "Next Due: ${sdf.format(Date(customer.nextDueDate))}"
+            val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
+            binding.tvDueDate.text = "(Due: ${sdf.format(Date(customer.nextDueDate))})"
             
-            val today = Calendar.getInstance().timeInMillis
+            val today = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
             val threeDaysMillis = 3 * 24 * 60 * 60 * 1000L
             
             val (statusText, statusColor) = when {
-                customer.nextDueDate < today -> "OVERDUE" to "#F44336" // Red
-                customer.nextDueDate <= today + threeDaysMillis -> "DUE SOON" to "#FBC02D" // Yellow/Amber
-                else -> "PAID" to "#4CAF50" // Green
+                customer.isCurrentMonthFeePaid -> context.getString(R.string.status_paid) to "#4CAF50" // Green
+                customer.nextDueDate < today -> context.getString(R.string.status_overdue) to "#F44336" // Red
+                customer.nextDueDate <= today + threeDaysMillis -> context.getString(R.string.status_due_soon) to "#FBC02D" // Yellow/Amber
+                else -> context.getString(R.string.status_pending) to "#2196F3" // Blue
             }
             
             binding.statusBadge.text = statusText
             binding.statusBadge.setBackgroundColor(Color.parseColor(statusColor))
 
-            binding.btnPaid.setOnClickListener { onPaidClick(customer) }
+            // Set button text and click listener based on payment status
+            if (customer.isCurrentMonthFeePaid) {
+                binding.btnTogglePaymentStatus.text = context.getString(R.string.action_mark_unpaid)
+            } else {
+                binding.btnTogglePaymentStatus.text = context.getString(R.string.action_mark_paid)
+            }
+            binding.btnTogglePaymentStatus.setOnClickListener { onTogglePaymentStatusClick(customer) }
+
             binding.btnSMS.setOnClickListener { onSMSClick(customer) }
             binding.btnEdit.setOnClickListener { onEditClick(customer) }
             binding.btnDelete.setOnClickListener { onDeleteClick(customer) }

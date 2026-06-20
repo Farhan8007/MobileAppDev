@@ -46,6 +46,7 @@ class HomeFragment : Fragment() {
         setupDashboard()
         setupSearch()
         setupFilters()
+        setupSnackbarAndUndo()
 
         binding.fabAdd.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToAddEditCustomerFragment(getString(R.string.add_customer), -1L)
@@ -74,7 +75,13 @@ class HomeFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = CustomerAdapter(
-            onPaidClick = { customer -> viewModel.markAsPaid(customer) },
+            onTogglePaymentStatusClick = { customer ->
+                if (customer.isCurrentMonthFeePaid) {
+                    showMarkUnpaidConfirmation(customer)
+                } else {
+                    showMarkPaidConfirmation(customer)
+                }
+            },
             onSMSClick = { customer -> sendSMS(customer) },
             onEditClick = { customer ->
                 val action = HomeFragmentDirections.actionHomeFragmentToAddEditCustomerFragment(getString(R.string.edit_customer), customer.id)
@@ -108,8 +115,11 @@ class HomeFragment : Fragment() {
         viewModel.overdueCount.observe(viewLifecycleOwner) { count ->
             binding.tvOverdueCustomers.text = getString(R.string.overdue, count)
         }
+        viewModel.monthCollection.observe(viewLifecycleOwner) { amount ->
+            binding.tvMonthCollection.text = getString(R.string.month_collection_label, amount ?: 0.0)
+        }
         viewModel.totalCollection.observe(viewLifecycleOwner) { amount ->
-            binding.tvTotalCollection.text = getString(R.string.monthly_collection, amount ?: 0.0)
+            binding.tvTotalCollection.text = getString(R.string.total_collection_label, amount ?: 0.0)
         }
     }
 
@@ -129,9 +139,34 @@ class HomeFragment : Fragment() {
                 R.id.chipPaid -> "PAID"
                 R.id.chipDue -> "DUE_SOON"
                 R.id.chipOverdue -> "OVERDUE"
+                R.id.chipPending -> "PENDING"
                 else -> "ALL"
             }
             viewModel.setFilterStatus(status)
+        }
+    }
+
+    private fun setupSnackbarAndUndo() {
+        viewModel.snackbarMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { 
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+                viewModel.snackbarMessageShown()
+            }
+        }
+
+        viewModel.lastAction.observe(viewLifecycleOwner) { lastAction ->
+            lastAction?.let {
+                val messageRes = when (it) {
+                    is GymViewModel.LastAction.MarkPaid -> R.string.fee_marked_paid
+                    is GymViewModel.LastAction.MarkUnpaid -> R.string.fee_marked_unpaid
+                }
+                Snackbar.make(binding.root, getString(messageRes), Snackbar.LENGTH_LONG)
+                    .setAction(R.string.action_undo) {
+                        viewModel.undoLastAction()
+                    }
+                    .show()
+                viewModel.clearLastAction()
+            }
         }
     }
 
@@ -156,12 +191,34 @@ class HomeFragment : Fragment() {
     private fun showDeleteConfirmation(customer: Customer) {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.delete_confirmation_title)
-            .setMessage(R.string.delete_confirmation_msg)
+            .setMessage(getString(R.string.delete_confirmation_msg_customer, customer.name))
             .setPositiveButton(R.string.action_delete) { _, _ ->
                 viewModel.deleteCustomer(customer)
-                Snackbar.make(binding.root, R.string.customer_deleted, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, getString(R.string.customer_deleted, customer.name), Snackbar.LENGTH_LONG).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showMarkPaidConfirmation(customer: Customer) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.confirm_payment_title)
+            .setMessage(getString(R.string.confirm_mark_paid_msg, customer.monthlyFee, customer.name))
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                viewModel.markCustomerPaid(customer)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun showMarkUnpaidConfirmation(customer: Customer) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.confirm_revert_title)
+            .setMessage(getString(R.string.confirm_mark_unpaid_msg, customer.monthlyFee, customer.name))
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                viewModel.markCustomerUnpaid(customer)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
